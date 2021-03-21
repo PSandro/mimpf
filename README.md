@@ -24,4 +24,4 @@ Mimpf sollte möglichst lightweight sein und z.B. auf einem RaspberryPI laufen k
 
 
 ## Lizenz
-![GNU General Public License v3.0](LICENSE.md)
+![GNU General Public License v3.0](LICENSE)
