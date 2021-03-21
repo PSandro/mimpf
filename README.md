@@ -22,6 +22,26 @@ Mimpf sollte möglichst lightweight sein und z.B. auf einem RaspberryPI laufen k
 ## Vorstellung / Anregung
 ![ClickDummy](https://user-images.githubusercontent.com/20563761/111907138-54d40880-8a54-11eb-99a9-933300650a51.png)
 
+## Development
+### setup
+
+```console
+foo@bar:~$ git clone git@github.com:PSandro/mimpf.git
+foo@bar:~$ cd mimpf
+foo@bar:~$ pipenv install
+```
+```console
+foo@bar:~$ cp .env.example .env
+```
+Bearbeite `.env` nach deinen Bedürfnissen :)
+
+
+### run server
+
+```console
+foo@bar:~$ pipenv shell
+foo@bar:~$ python3 manage.py runserver
+```
 
 ## Lizenz
 ![GNU General Public License v3.0](LICENSE)
