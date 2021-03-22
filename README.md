@@ -45,3 +45,6 @@ foo@bar:~$ python3 manage.py runserver
 
 ## Lizenz
 ![GNU General Public License v3.0](LICENSE)
+
+### Lizenzen verwendeter Projekte/Bibliotheken
+- ![Argon Dashboard Django](https://github.com/creativetimofficial/argon-dashboard-django) - ![MIT](https://github.com/creativetimofficial/argon-dashboard-django/blob/master/LICENSE.md)
