@@ -6,6 +6,12 @@ name = "pypi"
 [packages]
 django = "*"
 python-dotenv = "*"
+channels = "*"
+channels-redis = "*"
+celery = "*"
+djangochannelsrestframework = "*"
+channelsmultiplexer = "*"
+djangorestframework = "*"
 
 [dev-packages]
 

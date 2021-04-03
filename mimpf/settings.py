@@ -42,6 +42,9 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'channels',
+    'reception',
+    'authentication',
 ]
 
 MIDDLEWARE = [
@@ -74,7 +77,10 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'mimpf.wsgi.application'
+ASGI_APPLICATION = 'mimpf.asgi.application'
 
+# Celery
+CELERY_BROKER_URL = 'redis://127.0.0.1:6379'
 
 # Database
 # https://docs.djangoproject.com/en/3.1/ref/settings/#databases
@@ -83,6 +89,16 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'db.sqlite3',
+    }
+}
+
+# Channel Layers
+CHANNEL_LAYERS = {
+    'default':  {
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {
+            'hosts': [('127.0.0.1', 6379)]
+        }
     }
 }
 
