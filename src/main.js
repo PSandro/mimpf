@@ -1,4 +1,5 @@
 import { createApp } from 'vue'
+import router from '@/router/router'
 import App from './App.vue'
 //import VueSocketIO from 'vue-socket.io'
 
@@ -9,5 +10,5 @@ import App from './App.vue'
 //}
 
 //const app = createApp(App).use(new VueSocketIO(optionsVueIO));
-const app = createApp(App);
+const app = createApp(App).use(router);
 app.mount('#app');

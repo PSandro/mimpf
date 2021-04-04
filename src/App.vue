@@ -1,15 +1,17 @@
 <template>
-  <img alt="Vue logo" src="./assets/logo.png">
-  <IListenToSockets/>
+  <h1>Mimpf!</h1>
+  <p>
+    <router-link to="/">Home</router-link>
+    <router-link to="/reception">(Parkplatz-)Empfang</router-link>
+  </p>
+  <router-view></router-view>
 </template>
 
 <script>
-import IListenToSockets from './components/IListenToSockets.vue'
 
 export default {
   name: 'App',
   components: {
-    IListenToSockets
   }
 }
 </script>
