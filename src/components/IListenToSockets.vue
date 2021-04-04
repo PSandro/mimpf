@@ -1,44 +1,38 @@
 <template>
   <div>
-    <p v-if="isConnected">We're connected to the server!</p>
-    <p>Message from server: "{{socketMessage}}"</p>
     <button @click="pingServer()">Ping Server</button>
   </div>
 </template>
 
 <script>
-
+import io from 'socket.io-client';
 export default {
   name: 'IListenToSockets',
   data() {
     return {
-      isConnected: false,
-      socketMessage: ''
+      socket: {},
+      context: {}
     }
   },
-
-  sockets: {
-    connect() {
-      // Fired when the socket connects.
-      console.log('ws connected');
-      this.isConnected = true;
-    },
-
-    disconnect() {
-      this.isConnected = false;
-    },
-
-    // Fired when the server sends something on the "messageChannel" channel.
-    messageChannel(data) {
-      this.socketMessage = data
-    }
+  created() {
+    this.socket = io('http://localhost:3000', {
+        path: '/ws/',
+    });
+  },
+  mounted() {
+    this.socket.on('connection', () => {
+        console.log('connected');
+    });
+    this.socket.on('pong', () => {
+        console.log('pong');
+    });
   },
 
   methods: {
     pingServer() {
       // Send the "pingServer" event to the server.
-      console.log(this.$socket);
-      this.$socket.emit('pingServer', 'PING!')
+      console.log(this.socket);
+      this.socket.emit('pingServer', 'PING!')
     }
   }
 }
