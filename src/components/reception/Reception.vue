@@ -2,11 +2,12 @@
   <div>
     <p>Blub!</p>
   </div>
+  <button @click="addAppointment">add an empty appointment</button>
   <grid :cols="cols" :rows="rows"/>
 </template>
 
 <script>
-import { mapState } from 'vuex'
+import { mapState, mapActions } from 'vuex'
 import Grid from '@/components/lib/gridjs-vue.vue'
 
 export default {
@@ -16,7 +17,7 @@ export default {
   },
   data() {
     return {
-        cols: ['id', 'time', 'firstName', 'lastName', 'stage', 'vaccine'],
+        cols: ['date', 'firstName', 'lastName', 'stage', 'vaccine'],
     }
   },
   computed: {
@@ -31,6 +32,9 @@ export default {
   unmounted() {
   },
   methods: {
+    ...mapActions('appointment', [
+      'addAppointment',
+    ]),
   }
 }
 </script>

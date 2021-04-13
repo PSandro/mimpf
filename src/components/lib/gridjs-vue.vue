@@ -134,8 +134,11 @@ export default {
     pagination() {
       this.update()
     },
-    rows() {
-      this.update()
+    rows: {
+      handler() {
+        this.update()
+      },
+      deep: true
     },
     search() {
       this.update()
@@ -201,6 +204,7 @@ export default {
       }
     },
     update() {
+      console.log('grid upgrade');
       if (this.grid) this.grid.updateConfig(this.options).forceRender()
     }
   }

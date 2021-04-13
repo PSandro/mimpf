@@ -1,12 +1,20 @@
-import { createStore, createLogger } from 'vuex'
-import appointment from './modules/appointment'
+import { createStore, createLogger } from 'vuex';
+import PouchDB from 'pouchdb';
 
-const debug = process.env.NODE_env !== 'production'
+import appointment from './modules/appointment';
+
+const debug = process.env.NODE_env !== 'production';
+
+const db = new PouchDB('mimpf');
+// TODO: PouchDB.sync('mimpf', 'http://....', {live:true});
 
 export default createStore({
+	state: {
+		db
+	},
 	modules: {
 		appointment
 	},
 	strict: debug,
 	plugins: debug ? [createLogger()] : []
-})
+});
