@@ -3,7 +3,7 @@ import PouchDB from 'pouchdb';
 
 import appointment from './modules/appointment';
 
-const debug = process.env.NODE_env !== 'production';
+const debug = true;
 
 const db = new PouchDB('mimpf');
 // TODO: PouchDB.sync('mimpf', 'http://....', {live:true});

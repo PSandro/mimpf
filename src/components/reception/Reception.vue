@@ -2,8 +2,17 @@
   <div>
     <p>Blub!</p>
   </div>
-  <button @click="addAppointment">add an empty appointment</button>
-  <grid :cols="cols" :rows="rows" :sort="sort" :search="search" :pagination="pagination" :language="language"/>
+  <button @click="addAppointment">
+    add an empty appointment
+  </button>
+  <grid
+    :cols="cols"
+    :rows="rows"
+    :sort="sort"
+    :search="search"
+    :pagination="pagination"
+    :language="language"
+  />
 </template>
 
 <script>

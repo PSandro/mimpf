@@ -1,6 +1,8 @@
 <template>
   <div>
-    <button @click="pingServer()">Ping Server</button>
+    <button @click="pingServer()">
+      Ping Server
+    </button>
   </div>
 </template>
 

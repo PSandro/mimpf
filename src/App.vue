@@ -1,10 +1,14 @@
 <template>
   <h1>Mimpf!</h1>
   <p>
-    <router-link to="/">Home</router-link>
-    <router-link to="/reception">(Parkplatz-)Empfang</router-link>
+    <router-link to="/">
+      Home
+    </router-link>
+    <router-link to="/reception">
+      (Parkplatz-)Empfang
+    </router-link>
   </p>
-  <router-view></router-view>
+  <router-view />
 </template>
 
 <script>

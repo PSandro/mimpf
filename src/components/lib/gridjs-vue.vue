@@ -1,6 +1,10 @@
 // source: https://github.com/grid-js/gridjs-vue
 <template>
-  <article :id="`gridjs__${uuid}`" :data-uuid="uuid" :class="`gridjs__wrapper`"></article>
+  <article
+    :id="`gridjs__${uuid}`"
+    :data-uuid="uuid"
+    :class="`gridjs__wrapper`"
+  />
 </template>
 
 <script>
