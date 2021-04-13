@@ -204,7 +204,6 @@ export default {
       }
     },
     update() {
-      console.log('grid upgrade');
       if (this.grid) this.grid.updateConfig(this.options).forceRender()
     }
   }
