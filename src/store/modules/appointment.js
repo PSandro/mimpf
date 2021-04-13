@@ -3,11 +3,7 @@ import { nanoid } from 'nanoid'
 
 // initial state
 const state = () => ({
-	appointments: [
-          {_id: 'appointment:1', date: '8:30 Uhr', firstName: 'Max', lastName: 'Musterimpfling', stage: '1', vaccine: 'Comirnaty (BioNTech/Pfizer)'},
-          {_id: 'appointment:2', date: '8:30 Uhr', firstName: 'Maxima', lastName: 'Musterimpfling', stage: '2', vaccine: 'Comirnaty (BioNTech/Pfizer)'},
-          {_id: 'appointment:3', date: '8:45 Uhr', firstName: 'Helga', lastName: 'Schmitt', stage: '2', vaccine: 'Comirnaty (BioNTech/Pfizer)'},
-	]
+	appointments: []
 })
 
 // getters
@@ -41,7 +37,7 @@ const actions = {
 	addAppointment(ctx) {
 		let appointment = {
 			_id: 'appointment:' + nanoid(),
-			date: 'null',
+			date: new Date().toISOString(),
 			firstName: 'Max',
 			lastName: 'Musterimpfling',
 			stage: 1,

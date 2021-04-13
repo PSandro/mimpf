@@ -17,11 +17,17 @@ export default {
   },
   data() {
     return {
-        //cols: ['date', 'firstName', 'lastName', 'stage', 'vaccine'],
 	cols: [
           {
             id: 'date',
             name: 'Uhrzeit',
+            formatter: (cell) => {
+              //TODO: make prettier
+              let date = new Date(cell);
+              let hours = (date.getHours() < 10) ? "0" + date.getHours() : date.getHours();
+              let minutes = (date.getMinutes() < 10) ? "0" + date.getMinutes() : date.getMinutes();
+              return `${hours}:${minutes}`;
+            }
           },
           {
             id: 'firstName',
