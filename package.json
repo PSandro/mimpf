@@ -14,7 +14,8 @@
     "nanoid": "^3.1.22",
     "socket.io-client": "^4.0.1",
     "vue": "^3.0.0",
-    "vue-router": "^4.0.5"
+    "vue-router": "^4.0.5",
+    "vuex": "^4.0.0"
   },
   "devDependencies": {
     "@vue/cli-plugin-babel": "~4.5.0",
