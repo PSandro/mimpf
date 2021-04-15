@@ -28,19 +28,13 @@ Mimpf sollte möglichst lightweight sein und z.B. auf einem RaspberryPI laufen k
 ```console
 foo@bar:~$ git clone git@github.com:PSandro/mimpf.git
 foo@bar:~$ cd mimpf
-foo@bar:~$ pipenv install
+foo@bar:~$ (git checkout rebuild)
+foo@bar:~$ npm install
 ```
-```console
-foo@bar:~$ cp .env.example .env
-```
-Bearbeite `.env` nach deinen Bedürfnissen :)
-
-
 ### run server
 
 ```console
-foo@bar:~$ pipenv shell
-foo@bar:~$ python3 manage.py runserver
+foo@bar:~$ npm run serve
 ```
 
 ## Lizenz
