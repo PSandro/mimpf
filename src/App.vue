@@ -16,6 +16,11 @@
 export default {
   name: 'App',
   components: {
+  },
+  created: function() {
+    this.$store.dispatch('syncDB');
+    this.$store.dispatch('appointment/fetchAppointments');
+    
   }
 }
 </script>

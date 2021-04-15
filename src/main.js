@@ -5,7 +5,7 @@ import store from '@/store'
 
 
 const app = createApp(App)
-	.use(router)
-	.use(store);
+  .use(router)
+  .use(store);
 
 app.mount('#app');
