@@ -5,13 +5,13 @@ const nanoid = customAlphabet(alphanumeric, 11);
 
 // initial state
 const state = () => ({
-  appointments: []
+  appointmentSelection: []
 })
 
 // getters
 const getters = {
   getAppointmentById: (state) => (id) => {
-    return state.appointments.find(appointment => id === appointment._id);
+    return state.appointmentSelection.find(appointment => id === appointment._id);
   }
 }
 
@@ -19,22 +19,22 @@ const getters = {
 // mutations
 const mutations = {
   addAppointment(state, appointment) {
-    state.appointments.push(appointment);
+    state.appointmentSelection.push(appointment);
   },
   editAppointment(state, editAppointment) {
-    let appointment = state.appointments.find(appointment => editAppointment._id === appointment.id);
-    let index = state.appointments.indexOf(appointment);
-    state.appointments.splice(index, 1, editAppointment);
+    let appointment = state.appointmentSelection.find(appointment => editAppointment._id === appointment.id);
+    let index = state.appointmentSelection.indexOf(appointment);
+    state.appointmentSelection.splice(index, 1, editAppointment);
   },
   removeAppointment(state, appointment) {
-    let index = state.appointments.indexOf(appointment);
-    state.appointments.splice(index, 1);
+    let index = state.appointmentSelection.indexOf(appointment);
+    state.appointmentSelection.splice(index, 1);
   },
-  setAppointments (state, appointments) {
-    state.appointments = appointments;
+  setAppointmentSelection (state, appointmentSelection) {
+    state.appointmentSelection = appointmentSelection;
   },
-  clearAppointments(state) {
-    state.appointments = [];
+  clearAppointmentSelection(state) {
+    state.appointmentSelection = [];
   }
 }
 
@@ -62,7 +62,7 @@ const actions = {
       include_docs: true,
       startkey: 'appointment:',
     }).then( (appointments) => {
-      ctx.commit('setAppointments', appointments.rows.map(el => el.doc));
+      ctx.commit('setAppointmentSelection', appointments.rows.map(el => el.doc));
     })
 
   }

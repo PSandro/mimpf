@@ -82,7 +82,7 @@ export default {
   },
   computed: {
     ...mapState('appointment', {
-      rows: 'appointments',
+      rows: 'appointmentSelection',
     }),
   },
   created() {
