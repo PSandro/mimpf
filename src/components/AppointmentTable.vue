@@ -1,5 +1,6 @@
 <template>
   <el-table
+    v-loading="loading"
     :data="appointments"
     style="width: 100%"
     empty-text="keine Termine geladen"
@@ -7,21 +8,15 @@
   >
     <el-table-column
       fixed
-      prop="_id"
-      label="ID"
-      width="200"
-    />
-    <el-table-column
-      fixed
       prop="date"
       label="Uhrzeit"
-      width="150"
+      width="100"
     />
     <el-table-column
       fixed
       prop="firstName"
       label="Vorname"
-      width="120"
+      min-width="100"
     />
     <el-table-column
       fixed
@@ -60,7 +55,7 @@
 
 <script>
 import { useStore } from 'vuex'
-import { onMounted, computed } from 'vue'
+import { computed } from 'vue'
 
 export default {
   name: 'AppointmentTable',
@@ -70,23 +65,18 @@ export default {
     const store = useStore();
 
     const enqueueAppointment = (appointment) => {
-      const editAppointment= {
-        ...appointment,
-        state: 'enqueued'
-      }
-      store.dispatch('appointment/editAppointment', editAppointment);
+      store.dispatch('appointment/editAppointmentStatus', {
+        appointment: appointment,
+        status: 'enqueued'
+      });
     }
 
-    const fetchPendingAppointments = () => {
-      store.dispatch('appointment/fetchPendingAppointments');
-    };
 
-    onMounted(fetchPendingAppointments);
 
     return {
       appointments: computed(() => store.getters['appointment/getAppointmentSelection']),
       handleEnqueue: enqueueAppointment,
-      fetchPendingAppointments
+      loading: computed(() => store.getters['appointment/isLoading'])
 
     }
   }

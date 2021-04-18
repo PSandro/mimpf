@@ -4,7 +4,7 @@
     <router-link to="/">
       Home
     </router-link>
-    <router-link to="/reception">
+    <router-link to="/reception/appointments">
       (Parkplatz-)Empfang
     </router-link>
   </p>
@@ -19,6 +19,8 @@ export default {
   },
   created: function() {
     this.$store.dispatch('syncDB');
+    this.$store.dispatch('appointment/fetchAppointments');
+
     
   }
 }
