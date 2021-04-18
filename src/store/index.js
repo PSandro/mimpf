@@ -1,15 +1,16 @@
-import { createStore, createLogger } from 'vuex';
+import { createLogger, createStore } from 'vuex';
 import PouchDB from 'pouchdb';
+import PouchDBFind from 'pouchdb-find';
 
 import appointment from './modules/appointment';
 
 //TODO: disable in production
 const debug = true;
+PouchDB.plugin(PouchDBFind);
 const db = new PouchDB('mimpf');
 
 export default createStore({
   state: {
-    db,
     syncState: false,
     syncURL: 'http://admin:admin@localhost:5984/mimpf'
   },
@@ -21,6 +22,21 @@ export default createStore({
   mutations: {
   },
   actions: {
+    findDocs(context, options) {
+      return db.find(options);
+    },
+    createIndex(context, options) {
+      return db.createIndex(options);
+    },
+    putDoc(context, doc){
+      return db.put(doc);
+    },
+    fetchDocs(context, idPrefix) {
+      return db.allDocs({
+        include_docs: true,
+        startkey: idPrefix
+      });
+    },
     syncDB(context) {
       db
         .sync(context.state.syncURL, { live: true, retry: true })

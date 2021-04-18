@@ -19,7 +19,6 @@ export default {
   },
   created: function() {
     this.$store.dispatch('syncDB');
-    this.$store.dispatch('appointment/fetchAppointments');
     
   }
 }
