@@ -8,7 +8,7 @@ const state = () => ({
   appointmentSelection: [],
   status: 'pending',
   loading: true,
-  limit: 25
+  limit: 15
 })
 
 // getters
@@ -109,27 +109,42 @@ const actions = {
     }
 
   },
-  fetchByState({state, dispatch, commit}) {
-    commit('setLoading', true)
-    dispatch('createIndex', {
-      index: {
-        fields: ['_id', 'date', 'status']
+  createIndex({dispatch}) {
+    return dispatch('buildQueryIndex', {
+      _id: '_design/index-appointment-pending-sorted',
+      views: {
+        by_status: {
+          /* eslint-disable no-useless-escape */
+          /* eslint-disable no-undef */
+          map: function (doc) {
+            if (typeof doc.status !== 'undefined') {
+              let type = doc['_id'].match('^[^\:]+\:');
+              if (type !== null && type[0] === 'appointment:') {
+                emit([type, doc['status'], doc['date'], doc['lastName'], doc['firstName']], null);
+              }
+            }
+          }.toString(),
+          /* eslint-enable no-useless-escape */
+          /* eslint-enable no-undef */
+        }
       }
-    }, { root: true }).then(() => {
-      dispatch('findDocs', {
-        selector: {
-          _id: {
-            $gt: 'appointment:',
-            $lte: 'appointment:\uffff' //TODO: is this endkey already high enough?
-          },
-          status: state.status,
-          date: {
-            $gt: 0,
+    }, { root: true });
+  },
+  fetchByState({state, dispatch, commit}) {
+    commit('setLoading', true);
+    dispatch('createIndex').then(() => { // TODO: check if index already exists, see def. of buildQueryIndex
+      dispatch(
+        'queryDocs',
+        {
+          index: 'index-appointment-pending-sorted/by_status',
+          options: {
+            include_docs: true,
+            limit: state.limit
           }
         },
-        limit: state.limit
-      }, { root: true }).then((appointments) => {
-        commit('setAppointmentSelection', appointments.docs);
+        { root: true }
+      ).then((appointments) => {
+        commit('setAppointmentSelection', appointments.rows.map(el => el.doc));
         commit('setLoading', false)
       });
     });

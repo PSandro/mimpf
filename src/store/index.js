@@ -22,22 +22,36 @@ export default createStore({
   mutations: {
   },
   actions: {
-    findDocs(context, options) {
+    async findDocs(context, options) {
       return db.find(options);
     },
-    createIndex(context, options) {
+    async queryDocs(context, options) {
+      return db.query(options.index, options.options);
+    },
+    async buildQueryIndex(context, doc){
+      return new Promise((accept, reject) => {
+        db.put(doc, (err, resp) => {
+          if (err && err.status !== 409) { //TODO. update index if different
+            reject(err);
+          } else {
+            accept(resp);
+          }
+        });
+      });
+    },
+    async createIndex(context, options) {
       return db.createIndex(options);
     },
-    putDoc(context, doc){
+    async putDoc(context, doc){
       return db.put(doc);
     },
-    fetchDocs(context, idPrefix) {
+    async fetchDocs(context, idPrefix) {
       return db.allDocs({
         include_docs: true,
         startkey: idPrefix
       });
     },
-    syncDB(context) {
+    async syncDB(context) {
       db
         .sync(context.state.syncURL, { live: true, retry: true })
         .on('change', function(info) {

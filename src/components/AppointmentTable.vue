@@ -4,7 +4,8 @@
     :data="appointments"
     style="width: 100%"
     empty-text="keine Termine geladen"
-    :default-sort="{prop: 'date', order: 'ascending'}"
+    lazy="true"
+    row-key="rowKey"
   >
     <el-table-column
       fixed
@@ -76,7 +77,8 @@ export default {
     return {
       appointments: computed(() => store.getters['appointment/getAppointmentSelection']),
       handleEnqueue: enqueueAppointment,
-      loading: computed(() => store.getters['appointment/isLoading'])
+      loading: computed(() => store.getters['appointment/isLoading']),
+      rowKey: "_id"
 
     }
   }
