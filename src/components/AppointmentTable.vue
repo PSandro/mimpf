@@ -1,4 +1,19 @@
 <template>
+  <el-button-group>
+    <el-button
+      type="primary"
+      icon="el-icon-arrow-left"
+      @click="handlePrev"
+    >
+      Previous Page
+    </el-button>
+    <el-button
+      type="primary"
+      @click="handleNext"
+    >
+      Next Page<i class="el-icon-arrow-right el-icon-right" />
+    </el-button>
+  </el-button-group>
   <el-table
     v-loading="loading"
     :data="appointments"
@@ -72,11 +87,20 @@ export default {
       });
     }
 
+    const handleNext = () => {
+      store.dispatch('appointment/fetchNextPage');
+    };
+    const handlePrev = () => {
+      store.dispatch('appointment/fetchPreviousPage');
+    };
+
 
 
     return {
       appointments: computed(() => store.getters['appointment/getAppointmentSelection']),
       handleEnqueue: enqueueAppointment,
+      handleNext,
+      handlePrev,
       loading: computed(() => store.getters['appointment/isLoading']),
       rowKey: "_id",
       lazyLoad: true
