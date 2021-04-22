@@ -2,18 +2,25 @@
   <button @click="addAppointment">
     add an empty appointment
   </button>
-  <AppointmentTable />
+  <Suspense>
+    <template #default>
+      <AppointmentTable />
+    </template>
+    <template #fallback>
+      <div>Loading...</div>
+    </template>
+  </Suspense>
 </template>
 
 <script>
-import { useStore } from 'vuex'
+import { useStore } from 'vuex';
+import { defineAsyncComponent } from 'vue';
 
-import AppointmentTable from '@/components/AppointmentTable';
 
 export default {
   name: 'Appointment',
   components: {
-    AppointmentTable,
+    AppointmentTable: defineAsyncComponent(() => import('@/components/AppointmentTable')),
   },
   setup() {
     const store = useStore();

@@ -1,27 +1,36 @@
 <template>
   <h1>Mimpf!</h1>
   <p>
-    <router-link to="/">
+    <router-link to="/reception">
       Home
     </router-link>
     <router-link to="/reception/appointments">
       (Parkplatz-)Empfang
     </router-link>
   </p>
-  <router-view />
+  <Suspense>
+    <template #default>
+      <router-view />
+    </template>
+    <template #fallback>
+      <div>Loading...</div>
+    </template>
+  </Suspense>
 </template>
 
 <script>
+
+import { useStore } from 'vuex';
 
 export default {
   name: 'App',
   components: {
   },
-  created: function() {
-    this.$store.dispatch('syncDB');
-    this.$store.dispatch('appointment/fetchAppointments');
+  setup() {
+    const store = useStore();
 
-    
+    store.dispatch('syncDB');
+    store.dispatch('appointment/fetchAppointments');
   }
 }
 </script>

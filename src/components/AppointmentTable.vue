@@ -4,8 +4,8 @@
     :data="appointments"
     style="width: 100%"
     empty-text="keine Termine geladen"
-    lazy="true"
-    row-key="rowKey"
+    :lazy="lazyLoad"
+    :row-key="rowKey"
   >
     <el-table-column
       fixed
@@ -78,7 +78,8 @@ export default {
       appointments: computed(() => store.getters['appointment/getAppointmentSelection']),
       handleEnqueue: enqueueAppointment,
       loading: computed(() => store.getters['appointment/isLoading']),
-      rowKey: "_id"
+      rowKey: "_id",
+      lazyLoad: true
 
     }
   }
