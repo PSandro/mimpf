@@ -80,9 +80,9 @@ export default createStore({
                     context.commit('appointment/addAppointment', change);
                   }
                 }
-                context.dispatch('appointment/fetchPendingCount');
               }
             }
+            context.dispatch('appointment/fetchPendingCount');
           }
         })
         .on('paused', function() {

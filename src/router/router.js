@@ -6,6 +6,7 @@ import {
 const Home = () => import('@/components/Home.vue');
 const Reception = () => import('@/components/reception/Reception.vue');
 const Appointments = () => import('@/components/Appointments.vue');
+const Queue = () => import('@/components/Queue.vue');
 
 const history = createWebHistory();
 const router = createRouter({
@@ -24,6 +25,11 @@ const router = createRouter({
         name: 'appointments',
         path: 'appointments',
         component: Appointments
+      },
+      {
+        name: 'queue',
+        path: 'queue',
+        component: Queue
       }
     ]
   },

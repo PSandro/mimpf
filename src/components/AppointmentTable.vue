@@ -8,14 +8,14 @@
       icon="el-icon-arrow-left el-icon-left"
       @click="handlePrev"
     >
-      nächste Seite
+      vorherige Seite
     </el-button>
     <el-button
       type="primary"
       :disabled="nextDisabled"
       @click="handleNext"
     >
-      vorherige Seite
+      nächste Seite
       <i class="el-icon-arrow-right el-icon-right" />
     </el-button>
   </el-button-group>

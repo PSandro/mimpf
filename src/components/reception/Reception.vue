@@ -36,6 +36,8 @@ export default {
     const handleSelect = (key) => {
       if (key === '1') {
         router.push({name: 'appointments'});
+      } else if (key === '2') {
+        router.push({name: 'queue'});
       }
     };
     return {
