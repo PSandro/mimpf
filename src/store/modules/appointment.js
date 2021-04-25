@@ -102,7 +102,6 @@ const actions = {
     dispatch('putDoc', appointment, { root: true }).then((res) => {
       appointment._rev = res.rev;
       commit('addAppointment', appointment);
-      commit('addCount');
     }).catch(() => {
       console.log('error adding appointment');
     });
