@@ -3,12 +3,14 @@
     <el-button
       type="primary"
       icon="el-icon-arrow-left"
+      :disabled="prevDisabled"
       @click="handlePrev"
     >
       Previous Page
     </el-button>
     <el-button
       type="primary"
+      :disabled="nextDisabled"
       @click="handleNext"
     >
       Next Page<i class="el-icon-arrow-right el-icon-right" />
@@ -26,7 +28,7 @@
       fixed
       prop="date"
       label="Uhrzeit"
-      width="100"
+      width="130"
     />
     <el-table-column
       fixed
@@ -88,10 +90,10 @@ export default {
     }
 
     const handleNext = () => {
-      store.dispatch('appointment/fetchNextPage');
+      store.dispatch('appointment/fetchPage', false);
     };
     const handlePrev = () => {
-      store.dispatch('appointment/fetchPreviousPage');
+      store.dispatch('appointment/fetchPage', true);
     };
 
 
@@ -103,7 +105,9 @@ export default {
       handlePrev,
       loading: computed(() => store.getters['appointment/isLoading']),
       rowKey: "_id",
-      lazyLoad: true
+      lazyLoad: true,
+      prevDisabled: computed(() => store.getters['appointment/isPrevDisabled']),
+      nextDisabled: computed(() => store.getters['appointment/isNextDisabled']),
 
     }
   }
