@@ -30,7 +30,6 @@ export default {
     const store = useStore();
 
     store.dispatch('syncDB');
-    store.dispatch('appointment/fetchAppointments');
   }
 }
 </script>

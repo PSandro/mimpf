@@ -1,4 +1,7 @@
 <template>
+  <div>
+    <p>{{ totalRows }} ausstehende Termine</p>
+  </div>
   <el-button-group>
     <el-button
       type="primary"
@@ -73,7 +76,7 @@
 
 <script>
 import { useStore } from 'vuex'
-import { computed } from 'vue'
+import { computed, onMounted } from 'vue'
 
 export default {
   name: 'AppointmentTable',
@@ -90,12 +93,17 @@ export default {
     }
 
     const handleNext = () => {
-      store.dispatch('appointment/fetchPage', false);
+      store.dispatch('appointment/fetchPage', { previous: false });
     };
     const handlePrev = () => {
-      store.dispatch('appointment/fetchPage', true);
+      store.dispatch('appointment/fetchPage', { previous: true });
     };
 
+    const fetchAppointments = () => {
+      store.dispatch('appointment/fetchPage', {previous: false , keyAppointment: {}});
+    };
+
+    onMounted(fetchAppointments);
 
 
     return {
@@ -108,6 +116,7 @@ export default {
       lazyLoad: true,
       prevDisabled: computed(() => store.getters['appointment/isPrevDisabled']),
       nextDisabled: computed(() => store.getters['appointment/isNextDisabled']),
+      totalRows: computed(() => store.getters['appointment/getTotalRows']),
 
     }
   }

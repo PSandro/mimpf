@@ -80,6 +80,7 @@ export default createStore({
                     context.commit('appointment/addAppointment', change);
                   }
                 }
+                context.dispatch('appointment/fetchPendingCount');
               }
             }
           }

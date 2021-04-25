@@ -9,7 +9,7 @@ const state = () => ({
   status: 'pending',
   loading: true,
   limit: 5,
-  total_rows: 0,
+  totalRows: 0,
   prevDisabled: false,
   nextDisabled: false,
 })
@@ -37,6 +37,9 @@ const getters = {
     }
     return state.appointmentSelection[0];
   },
+  getTotalRows: (state) => {
+    return state.totalRows;
+  },
   isPrevDisabled: (state) => {
     return state.prevDisabled;
   },
@@ -49,7 +52,7 @@ const getters = {
 // mutations
 const mutations = {
   addAppointment(state, appointment) {
-    if (this.status && !this.status === appointment.status) {
+    if (state.status && !state.status === appointment.status) {
       return;
     }
     state.appointmentSelection.push(appointment);
@@ -78,6 +81,9 @@ const mutations = {
   setLoading(state, loading) {
     state.loading = loading;
   },
+  setTotalRows(state, totalRows) {
+    state.totalRows = totalRows;
+  },
   setPrevDisabled(state, disabled = true) {
     state.prevDisabled = disabled;
   },
@@ -102,6 +108,7 @@ const actions = {
     dispatch('putDoc', appointment, { root: true }).then((res) => {
       appointment._rev = res.rev;
       commit('addAppointment', appointment);
+      dispatch('fetchPendingCount');
     }).catch(() => {
       console.log('error adding appointment');
     });
@@ -118,6 +125,7 @@ const actions = {
     dispatch('putDoc', appointment, { root: true }).then((res) => {
       appointment._rev = res.rev;
       commit('editAppointment', appointment);
+      dispatch('fetchPendingCount');
     }).catch(() => {
       console.log('error adding appointment');
     });
@@ -138,16 +146,42 @@ const actions = {
               }
             }
           }.toString(),
+
+          reduce: '_count',
           /* eslint-enable no-useless-escape */
           /* eslint-enable no-undef */
         }
       }
     }, { root: true });
   },
-  fetchPage({getters, state, dispatch, commit}, previous = false) {
-    commit('setLoading', true);
+  fetchPendingCount({dispatch, commit}) {
     dispatch('createIndex').then(() => { // TODO: check if index already exists, see def. of buildQueryIndex
-      let key = previous ? getters['getStartelement'] : getters['getEndelement'];
+      dispatch(
+        'queryDocs',
+        {
+          index: 'index-appointment-pending-sorted/by_status',
+          options: {
+            reduce: true
+          }
+        },
+        { root: true }
+      ).then((result) => {
+        commit('setTotalRows', result.rows[0].value);
+      });
+    });
+  },
+  fetchPage({getters, state, dispatch, commit}, { previous = false, keyAppointment} = {}) {
+    commit('setLoading', true);
+    let key;
+    let skip = 1;
+
+    if (keyAppointment !== undefined) {
+      key = keyAppointment;
+      skip = 0;
+    } else {
+      key = previous ? getters['getStartelement'] : getters['getEndelement'];
+    }
+    dispatch('createIndex').then(() => { // TODO: check if index already exists, see def. of buildQueryIndex
       dispatch(
         'queryDocs',
         {
@@ -155,14 +189,16 @@ const actions = {
           options: {
             include_docs: true,
             limit: state.limit,
-            startkey: [key.date, key.lastName, key.firstName],
-            startkey_docid: key._id,
-            skip: (key === {} ) ? 0 : 1,
+            startkey: (Object.keys(key) <= 0) ? [] : [key.date, key.lastName, key.firstName],
+            startkey_docid: (Object.keys(key) <= 0) ? {} :  key._id,
+            skip: skip,
             descending: previous,
+            reduce: false
           }
         },
         { root: true }
       ).then((appointments) => {
+        commit('setTotalRows', appointments.total_rows);
 
         // No more appointments. Skip updating current appointmentSelection
         if (appointments.rows.length <= 0) { 
@@ -175,25 +211,6 @@ const actions = {
           commit('setAppointmentSelection', result);
           commit('setLoading', false)
         }
-      });
-    });
-  },
-  fetchAppointments({state, dispatch, commit}) {
-    commit('setLoading', true);
-    dispatch('createIndex').then(() => { // TODO: check if index already exists, see def. of buildQueryIndex
-      dispatch(
-        'queryDocs',
-        {
-          index: 'index-appointment-pending-sorted/by_status',
-          options: {
-            include_docs: true,
-            limit: state.limit,
-          }
-        },
-        { root: true }
-      ).then((appointments) => {
-        commit('setAppointmentSelection', appointments.rows.map(el => el.doc));
-        commit('setLoading', false)
       });
     });
   },
