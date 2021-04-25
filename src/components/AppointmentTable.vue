@@ -5,18 +5,18 @@
   <el-button-group>
     <el-button
       type="primary"
-      icon="el-icon-arrow-left"
-      :disabled="prevDisabled"
+      icon="el-icon-arrow-left el-icon-left"
       @click="handlePrev"
     >
-      Previous Page
+      nächste Seite
     </el-button>
     <el-button
       type="primary"
       :disabled="nextDisabled"
       @click="handleNext"
     >
-      Next Page<i class="el-icon-arrow-right el-icon-right" />
+      vorherige Seite
+      <i class="el-icon-arrow-right el-icon-right" />
     </el-button>
   </el-button-group>
   <el-table
@@ -93,14 +93,14 @@ export default {
     }
 
     const handleNext = () => {
-      store.dispatch('appointment/fetchPage', { previous: false });
+      store.dispatch('appointment/updatePage', { previous: false });
     };
     const handlePrev = () => {
-      store.dispatch('appointment/fetchPage', { previous: true });
+      store.dispatch('appointment/updatePage', { previous: true });
     };
 
     const fetchAppointments = () => {
-      store.dispatch('appointment/fetchPage', {previous: false , keyAppointment: {}});
+      store.dispatch('appointment/updatePage', {key: {} });
     };
 
     onMounted(fetchAppointments);
@@ -114,7 +114,6 @@ export default {
       loading: computed(() => store.getters['appointment/isLoading']),
       rowKey: "_id",
       lazyLoad: true,
-      prevDisabled: computed(() => store.getters['appointment/isPrevDisabled']),
       nextDisabled: computed(() => store.getters['appointment/isNextDisabled']),
       totalRows: computed(() => store.getters['appointment/getTotalRows']),
 

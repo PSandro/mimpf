@@ -10,8 +10,6 @@ const state = () => ({
   loading: true,
   limit: 5,
   totalRows: 0,
-  prevDisabled: false,
-  nextDisabled: false,
 })
 
 // getters
@@ -40,11 +38,8 @@ const getters = {
   getTotalRows: (state) => {
     return state.totalRows;
   },
-  isPrevDisabled: (state) => {
-    return state.prevDisabled;
-  },
   isNextDisabled: (state) => {
-    return state.nextDisabled;
+    return state.totalRows <= state.limit || state.appointmentSelection.length < state.limit;
   },
 }
 
@@ -52,24 +47,30 @@ const getters = {
 // mutations
 const mutations = {
   addAppointment(state, appointment) {
+    if (state.appointmentSelection.length >= state.limit) {
+      return;
+    }
     if (state.status && !state.status === appointment.status) {
       return;
     }
+    let idMatchAppointment = state.appointmentSelection.find(el => el._id === appointment._id);
+    if (idMatchAppointment) {
+      return;
+    }
+
     state.appointmentSelection.push(appointment);
   },
-  editAppointment(state, editAppointment) {
+
+  updateAppointment(state, editAppointment) {
     let appointment = state.appointmentSelection.find(appointment => editAppointment._id === appointment._id);
     let index = state.appointmentSelection.indexOf(appointment);
     if (index !== -1) {
-      if (state.status && !(state.status === editAppointment.status)) {
-        state.appointmentSelection.splice(index, 1);
-      } else {
-        state.appointmentSelection.splice(index, 1, editAppointment);
-      }
+      state.appointmentSelection.splice(index, 1, editAppointment);
     }
   },
   removeAppointment(state, appointment) {
-    let index = state.appointmentSelection.indexOf(appointment);
+    let idMatchAppointment = state.appointmentSelection.find(el => el._id === appointment._id);
+    let index = state.appointmentSelection.indexOf(idMatchAppointment);
     state.appointmentSelection.splice(index, 1);
   },
   setAppointmentSelection (state, appointmentSelection) {
@@ -84,13 +85,6 @@ const mutations = {
   setTotalRows(state, totalRows) {
     state.totalRows = totalRows;
   },
-  setPrevDisabled(state, disabled = true) {
-    state.prevDisabled = disabled;
-  },
-  setNextDisabled(state, disabled = true) {
-    state.nextDisabled = disabled;
-  },
-
 }
 
 // actions
@@ -109,9 +103,7 @@ const actions = {
       appointment._rev = res.rev;
       commit('addAppointment', appointment);
       dispatch('fetchPendingCount');
-    }).catch(() => {
-      console.log('error adding appointment');
-    });
+    })
 			
   },
   editAppointmentStatus({dispatch}, { appointment, status }) {
@@ -121,13 +113,25 @@ const actions = {
     }
     dispatch('editAppointment', editAppointment);
   },
-  editAppointment({dispatch, commit}, appointment) {
+  editAppointment({state, dispatch, commit, getters}, appointment) {
     dispatch('putDoc', appointment, { root: true }).then((res) => {
       appointment._rev = res.rev;
-      commit('editAppointment', appointment);
-      dispatch('fetchPendingCount');
-    }).catch(() => {
-      console.log('error adding appointment');
+      
+      if (state.status && !(state.status === appointment.status)) {
+        commit('removeAppointment', appointment);
+
+        // fetch following appointments
+        dispatch('fetchAppointments', {key: getters['getEndelement'], skip: 1, limit: 1}).then((result) => {
+          console.log("lol");
+          if (result[0]) {
+            commit('addAppointment', result[0].doc);
+          }
+        });
+
+        dispatch('fetchPendingCount');
+      } else {
+        commit('updateAppointment', appointment);
+      }
     });
 			
   },
@@ -166,54 +170,86 @@ const actions = {
         },
         { root: true }
       ).then((result) => {
-        commit('setTotalRows', result.rows[0].value);
-      });
-    });
-  },
-  fetchPage({getters, state, dispatch, commit}, { previous = false, keyAppointment} = {}) {
-    commit('setLoading', true);
-    let key;
-    let skip = 1;
-
-    if (keyAppointment !== undefined) {
-      key = keyAppointment;
-      skip = 0;
-    } else {
-      key = previous ? getters['getStartelement'] : getters['getEndelement'];
-    }
-    dispatch('createIndex').then(() => { // TODO: check if index already exists, see def. of buildQueryIndex
-      dispatch(
-        'queryDocs',
-        {
-          index: 'index-appointment-pending-sorted/by_status',
-          options: {
-            include_docs: true,
-            limit: state.limit,
-            startkey: (Object.keys(key) <= 0) ? [] : [key.date, key.lastName, key.firstName],
-            startkey_docid: (Object.keys(key) <= 0) ? {} :  key._id,
-            skip: skip,
-            descending: previous,
-            reduce: false
-          }
-        },
-        { root: true }
-      ).then((appointments) => {
-        commit('setTotalRows', appointments.total_rows);
-
-        // No more appointments. Skip updating current appointmentSelection
-        if (appointments.rows.length <= 0) { 
-          commit('setLoading', false);
-        } else {
-          let result = appointments.rows.map(el => el.doc);
-          if (previous) {
-            result.reverse()
-          }
-          commit('setAppointmentSelection', result);
-          commit('setLoading', false)
+        if (result && result.rows && result.rows.length > 0) {
+          commit('setTotalRows', result.rows[0].value);
         }
       });
     });
   },
+  fetchAppointments({getters, state, dispatch, commit}, { previous = false, key, skip = 0, limit} = {}) {
+    
+    if (limit === undefined) {
+      limit = state.limit;
+    }
+
+    if (key === undefined) {
+      skip = 1;
+      key = previous ? getters['getStartelement'] : getters['getEndelement'];
+    }
+
+    let selector = 
+          {
+            index: 'index-appointment-pending-sorted/by_status',
+            options: {
+              include_docs: true,
+              limit: limit,
+              startkey: (Object.keys(key) <= 0) ? [] : [key.date, key.lastName, key.firstName],
+              startkey_docid: (Object.keys(key) <= 0) ? {} :  key._id,
+              skip: skip,
+              descending: previous,
+              reduce: false
+            }
+          };
+    return new Promise((accept) => {
+      dispatch('createIndex').then(() => { // TODO: check if index already exists, see def. of buildQueryIndex
+        dispatch(
+          'queryDocs',
+          selector,
+          { root: true }
+        ).then((appointments) => {
+          commit('setTotalRows', appointments.total_rows);
+          let result = appointments.rows;
+          if (previous) {
+            result.reverse();
+            
+            // if items of the previous pages have been updated, fill page
+            if ((result.length < state.limit) && (result.length < state.totalRows)) {
+              dispatch('fetchAppointments', {
+                previous: false,
+                key: (result.length > 0) ? result[result.length-1].doc : {},
+                skip: (result.length > 0) ? 1 : 0,
+                limit: state.limit - result.length
+              }).then((missingResults) => {
+                if (missingResults) {
+                  result.push(...missingResults);
+                }
+                accept(result);
+              });
+            } else {
+              accept(result);
+            }
+          } else { 
+            accept(result);
+          }
+        });
+      });
+    });
+  },
+  updatePage({dispatch, commit}, payload) {
+    commit('setLoading', true);
+    dispatch('fetchAppointments', payload).then((appointments) => {
+      // No more appointments. Skip updating current appointmentSelection
+      if (appointments.length <= 0) { 
+        commit('setLoading', false);
+      } else {
+        let result = appointments.map(el => el.doc);
+        commit('setAppointmentSelection', result);
+        commit('setLoading', false)
+      }
+    }).catch(() => {
+      console.log('error while updating page');
+    });
+  }
 }
 
 export default {
