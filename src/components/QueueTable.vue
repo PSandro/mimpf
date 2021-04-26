@@ -57,29 +57,38 @@
 </template>
 
 <script>
-import { } from 'vuex'
-import { computed } from 'vue'
+import { useStore } from 'vuex'
+import { computed, onMounted } from 'vue'
 
 export default {
   name: 'QueueTable',
   components: {
   },
   setup() {
+    const store = useStore();
 
     const callQueueEntry = (queueEntry) => {
       console.log(`calling ${queueEntry._id}`);
+      store.dispatch('queue/editQueueEntryStatus', {
+        queueEntry: queueEntry,
+        status: 'called'
+      });
     }
 
+    const fetchQueueEntries = () => {
+      store.dispatch('queue/updatePage');
+    };
+
+
+    onMounted(fetchQueueEntries);
+
     return {
-      queueEntries: computed(() => [{_id: "sdfsdalskfj", pager: '1', persons: [
-        {_id:"fdsaf", firstName: "Max", lastName: "Musterimpfling"},
-        {_id:"fdsalkfj", firstName: "Maxima", lastName: "Musterimpfling"}
-      ], issue: "Frage"}] ),
+      queueEntries: computed(() => { return store.getters['queue/getQueueEntries'] }),
       handleCall: callQueueEntry,
-      loading: computed(() => false),
+      loading: computed(() => { return store.getters['queue/isLoading'] }),
       rowKey: "_id",
       lazyLoad: true,
-      totalRows: computed(() => 10),
+      totalRows: computed(() => { return store.getters['queue/getTotalRows'] }),
 
     }
   }

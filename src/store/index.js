@@ -3,6 +3,7 @@ import PouchDB from 'pouchdb';
 import PouchDBFind from 'pouchdb-find';
 
 import appointment from './modules/appointment';
+import queue from './modules/queue';
 
 //TODO: disable in production
 const debug = true;
@@ -15,7 +16,8 @@ export default createStore({
     syncURL: 'http://admin:admin@localhost:5984/mimpf'
   },
   modules: {
-    appointment
+    appointment,
+    queue
   },
   methods: {
   },

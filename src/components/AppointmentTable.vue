@@ -92,6 +92,18 @@ export default {
         appointment: appointment,
         status: 'enqueued'
       });
+      store.dispatch('queue/addQueueEntry', {
+        persons: [
+          {
+            _id: appointment._id,
+            firstName: appointment.firstName,
+            lastName: appointment.lastName,
+          },
+        ],
+        issue: [
+          appointment.stage
+        ]
+      });
     }
 
     const handleNext = () => {
