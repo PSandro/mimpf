@@ -5,10 +5,10 @@
     mode="horizontal"
     @select="handleSelect"
   >
-    <el-menu-item index="1">
+    <el-menu-item index="appointments">
       Termine
     </el-menu-item>
-    <el-menu-item index="2">
+    <el-menu-item index="queue">
       Warteschlange
     </el-menu-item>
   </el-menu>
@@ -23,26 +23,23 @@
 </template>
 
 <script>
-import { useStore } from 'vuex';
-import { useRouter } from 'vue-router';
+import { useRouter, useRoute } from 'vue-router';
 
 
 export default {
   name: 'Reception',
   setup() {
     const router = useRouter();
-    const store = useStore();
+    const route = useRoute();
 
     const handleSelect = (key) => {
-      if (key === '1') {
-        router.push({name: 'appointments'});
-      } else if (key === '2') {
-        router.push({name: 'queue'});
-      }
+      router.push({name: key});
     };
+
+    let activeIndex = route.name;
+    
     return {
-      addAppointment: () => store.dispatch('appointment/addAppointment'),
-      activeIndex: '1',
+      activeIndex,
       handleSelect
     }
   }

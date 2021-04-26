@@ -32,6 +32,7 @@
       prop="date"
       label="Uhrzeit"
       width="130"
+      :formatter="formatDate"
     />
     <el-table-column
       fixed
@@ -77,6 +78,7 @@
 <script>
 import { useStore } from 'vuex'
 import { computed, onMounted } from 'vue'
+import dayjs from 'dayjs'
 
 export default {
   name: 'AppointmentTable',
@@ -104,6 +106,14 @@ export default {
     };
 
     onMounted(fetchAppointments);
+    
+
+
+    const formatDate = (row, column, cellValue) => {
+      let timestamp = new Number(cellValue);
+      return dayjs(timestamp)
+        .format('HH:mm') + ' Uhr';
+    };
 
 
     return {
@@ -116,6 +126,7 @@ export default {
       lazyLoad: true,
       nextDisabled: computed(() => store.getters['appointment/isNextDisabled']),
       totalRows: computed(() => store.getters['appointment/getTotalRows']),
+      formatDate,
 
     }
   }
