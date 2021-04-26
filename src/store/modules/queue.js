@@ -100,16 +100,18 @@ const actions = {
     }
     dispatch('editQueueEntry', editQueueEntry);
   },
-  editQueueEntry({state, dispatch, commit}, queueEntry) {
+  receiveQueueEntryEdit({state, dispatch, commit}, queueEntry) {
+    if (state.status && state.status !== queueEntry.status) {
+      commit('removeQueueEntry', queueEntry);
+      dispatch('fetchPendingCount');
+    } else {
+      commit('updateQueueEntry', queueEntry);
+    }
+  },
+  editQueueEntry({dispatch}, queueEntry) {
     dispatch('putDoc', queueEntry, { root: true }).then((res) => {
       queueEntry._rev = res.rev;
-      
-      if (state.status && state.status !== queueEntry.status) {
-        commit('removeQueueEntry', queueEntry);
-        dispatch('fetchPendingCount');
-      } else {
-        commit('updateQueueEntry', queueEntry);
-      }
+      dispatch('receiveQueueEntryEdit', queueEntry);
     });
 			
   },

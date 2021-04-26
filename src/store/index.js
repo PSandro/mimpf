@@ -74,7 +74,7 @@ export default createStore({
                     context.commit('appointment/removeAppointment', match);
                   } else {
                   // modify it
-                    context.commit('appointment/editAppointment', change);
+                    context.dispatch('appointment/receiveAppointmentEdit', change);
                   }
                 } else {
                 // add it
@@ -82,9 +82,28 @@ export default createStore({
                     context.commit('appointment/addAppointment', change);
                   }
                 }
+                context.dispatch('appointment/fetchPendingCount');
+              } else if (change._id.match(/^queueEntry:/)) {
+                let match = context.getters['queue/getQueueEntryById'](change._id);
+
+                if (match) {
+                  // and it's a deletion
+                  if (change._deleted == true) {
+                  // remove it
+                    context.commit('queue/removeQueueEntry', match);
+                  } else {
+                  // modify it
+                    context.dispatch('queue/receiveQueueEntryEdit', change);
+                  }
+                } else {
+                // add it
+                  if (!change._deleted) {
+                    context.commit('queue/addQueueEntry', change);
+                  }
+                }
+                context.dispatch('queue/fetchPendingCount');
               }
             }
-            context.dispatch('appointment/fetchPendingCount');
           }
         })
         .on('paused', function() {

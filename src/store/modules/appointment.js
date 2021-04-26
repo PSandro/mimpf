@@ -113,25 +113,27 @@ const actions = {
     }
     dispatch('editAppointment', editAppointment);
   },
-  editAppointment({state, dispatch, commit, getters}, appointment) {
+  receiveAppointmentEdit({state, dispatch, commit, getters}, appointment) {
+    if (state.status && !(state.status === appointment.status)) {
+      commit('removeAppointment', appointment);
+
+      // fetch following appointments
+      dispatch('fetchAppointments', {key: getters['getEndelement'], skip: 1, limit: 1}).then((result) => {
+        console.log("lol");
+        if (result[0]) {
+          commit('addAppointment', result[0].doc);
+        }
+      });
+
+      dispatch('fetchPendingCount');
+    } else {
+      commit('updateAppointment', appointment);
+    }
+  },
+  editAppointment({dispatch}, appointment) {
     dispatch('putDoc', appointment, { root: true }).then((res) => {
       appointment._rev = res.rev;
-      
-      if (state.status && !(state.status === appointment.status)) {
-        commit('removeAppointment', appointment);
-
-        // fetch following appointments
-        dispatch('fetchAppointments', {key: getters['getEndelement'], skip: 1, limit: 1}).then((result) => {
-          console.log("lol");
-          if (result[0]) {
-            commit('addAppointment', result[0].doc);
-          }
-        });
-
-        dispatch('fetchPendingCount');
-      } else {
-        commit('updateAppointment', appointment);
-      }
+      dispatch('receiveAppointmentEdit', appointment);
     });
 			
   },
