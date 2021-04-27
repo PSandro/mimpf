@@ -31,7 +31,7 @@ const getters = {
 // mutations
 const mutations = {
   addQueueEntry(state, queueEntry) {
-    if (state.status && !state.status === queueEntry.status) {
+    if (state.status && state.status !== queueEntry.status) {
       return;
     }
     let idMatchqueueEntry = state.queueEntries.find(el => el._id === queueEntry._id);

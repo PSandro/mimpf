@@ -50,14 +50,13 @@ const mutations = {
     if (state.appointmentSelection.length >= state.limit) {
       return;
     }
-    if (state.status && !state.status === appointment.status) {
+    if (state.status && state.status !== appointment.status) {
       return;
     }
     let idMatchAppointment = state.appointmentSelection.find(el => el._id === appointment._id);
     if (idMatchAppointment) {
       return;
     }
-
     state.appointmentSelection.push(appointment);
   },
 
@@ -114,12 +113,11 @@ const actions = {
     dispatch('editAppointment', editAppointment);
   },
   receiveAppointmentEdit({state, dispatch, commit, getters}, appointment) {
-    if (state.status && !(state.status === appointment.status)) {
+    if (state.status && state.status !== appointment.status) {
       commit('removeAppointment', appointment);
 
       // fetch following appointments
       dispatch('fetchAppointments', {key: getters['getEndelement'], skip: 1, limit: 1}).then((result) => {
-        console.log("lol");
         if (result[0]) {
           commit('addAppointment', result[0].doc);
         }
