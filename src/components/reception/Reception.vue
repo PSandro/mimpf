@@ -5,21 +5,25 @@
     mode="horizontal"
     @select="handleSelect"
   >
-    <el-menu-item index="appointments">
+    <el-menu-item index="view">
       Termine
     </el-menu-item>
     <el-menu-item index="queue">
       Warteschlange
     </el-menu-item>
   </el-menu>
-  <Suspense>
-    <template #default>
-      <router-view />
+  <router-view v-slot="{ Component }">
+    <template v-if="Component">
+      <keep-alive>
+        <suspense>
+          <component :is="Component" />
+          <template #fallback>
+            <div>Loading...</div>
+          </template>
+        </suspense>
+      </keep-alive>
     </template>
-    <template #fallback>
-      <div>Loading...</div>
-    </template>
-  </Suspense>
+  </router-view>
 </template>
 
 <script>

@@ -4,7 +4,7 @@
     <router-link to="/reception">
       Home
     </router-link>
-    <router-link to="/reception/appointments">
+    <router-link to="/reception/appointments/view">
       (Parkplatz-)Empfang
     </router-link>
   </p>

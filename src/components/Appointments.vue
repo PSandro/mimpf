@@ -2,28 +2,31 @@
   <button @click="addAppointment">
     add an empty appointment
   </button>
-  <Suspense>
-    <template #default>
-      <AppointmentTable />
+  <router-view v-slot="{ Component }">
+    <template v-if="Component">
+      <keep-alive>
+        <suspense>
+          <component :is="Component" />
+          <template #fallback>
+            <div>Loading...</div>
+          </template>
+        </suspense>
+      </keep-alive>
     </template>
-    <template #fallback>
-      <div>Loading...</div>
-    </template>
-  </Suspense>
+  </router-view>
 </template>
 
 <script>
 import { useStore } from 'vuex';
-import { defineAsyncComponent } from 'vue';
 
 
 export default {
   name: 'Appointment',
   components: {
-    AppointmentTable: defineAsyncComponent(() => import('@/components/AppointmentTable')),
   },
   setup() {
     const store = useStore();
+
     return {
       addAppointment: () => store.dispatch('appointment/addAppointment'),
     }

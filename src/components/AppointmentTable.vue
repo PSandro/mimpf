@@ -78,6 +78,7 @@
 <script>
 import { useStore } from 'vuex'
 import { computed, onMounted } from 'vue'
+import { useRouter } from 'vue-router';
 import dayjs from 'dayjs'
 
 export default {
@@ -86,24 +87,11 @@ export default {
   },
   setup() {
     const store = useStore();
+    const router = useRouter();
 
     const enqueueAppointment = (appointment) => {
-      store.dispatch('appointment/editAppointmentStatus', {
-        appointment: appointment,
-        status: 'enqueued'
-      });
-      store.dispatch('queue/addQueueEntry', {
-        persons: [
-          {
-            _id: appointment._id,
-            firstName: appointment.firstName,
-            lastName: appointment.lastName,
-          },
-        ],
-        issue: [
-          appointment.stage
-        ]
-      });
+      store.commit('enqueue/selectAppointment', appointment);
+      router.push({name: 'enqueue'});
     }
 
     const handleNext = () => {

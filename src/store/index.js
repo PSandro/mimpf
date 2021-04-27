@@ -4,6 +4,7 @@ import PouchDBFind from 'pouchdb-find';
 
 import appointment from './modules/appointment';
 import queue from './modules/queue';
+import enqueue from './modules/enqueue';
 
 //TODO: disable in production
 const debug = true;
@@ -17,7 +18,8 @@ export default createStore({
   },
   modules: {
     appointment,
-    queue
+    queue,
+    enqueue
   },
   methods: {
   },
