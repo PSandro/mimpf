@@ -59,17 +59,35 @@
     />
     <el-table-column
       fixed="right"
-      width="120"
+      width="200"
       label="Aktion"
     >
       <template #default="scope">
-        <el-button
-          size="small"
-          type="primary"
-          @click="handleEnqueue(scope.row)"
-        >
-          Einreihen
-        </el-button>
+        <template v-if="isSelected(scope.row)">
+          <el-button
+            size="small"
+            type="warning"
+            @click="handleEnqueue(scope.row)"
+          >
+            ({{ selectionCount }}) Einreihen
+          </el-button>
+          <el-button
+            size="small"
+            type="danger"
+            icon="el-icon-delete"
+            circle
+            @click="handleUnselect(scope.row)"
+          />
+        </template>
+        <template v-else>
+          <el-button
+            size="small"
+            type="primary"
+            @click="handleSelect(scope.row)"
+          >
+            Auswählen
+          </el-button>
+        </template>
       </template>
     </el-table-column>
   </el-table>
@@ -89,8 +107,7 @@ export default {
     const store = useStore();
     const router = useRouter();
 
-    const enqueueAppointment = (appointment) => {
-      store.commit('enqueue/selectAppointment', appointment);
+    const handleEnqueue = () => {
       router.push({name: 'enqueue'});
     }
 
@@ -116,9 +133,21 @@ export default {
     };
 
 
+    const isSelected = (row) => {
+      let selected = store.getters['enqueue/isSelectedID'](row._id);
+      return selected;
+    }
+    const handleSelect = (appointment) => {
+      store.commit('enqueue/selectAppointment', appointment);
+    }
+    const handleUnselect = (appointment) => {
+      store.commit('enqueue/unselectAppointment', appointment);
+    }
+
+
     return {
       appointments: computed(() => store.getters['appointment/getAppointmentSelection']),
-      handleEnqueue: enqueueAppointment,
+      handleEnqueue,
       handleNext,
       handlePrev,
       loading: computed(() => store.getters['appointment/isLoading']),
@@ -126,6 +155,10 @@ export default {
       lazyLoad: true,
       nextDisabled: computed(() => store.getters['appointment/isNextDisabled']),
       totalRows: computed(() => store.getters['appointment/getTotalRows']),
+      handleSelect,
+      handleUnselect,
+      isSelected,
+      selectionCount: computed(() => store.getters['enqueue/getSelectionCount']),
       formatDate,
 
     }
