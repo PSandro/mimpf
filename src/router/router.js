@@ -3,7 +3,7 @@ import {
   createRouter
 } from 'vue-router'
 
-const Home = () => import('@/components/Home.vue');
+const DatabaseConnection = () => import('@/components/DatabaseConnection.vue');
 const Reception = () => import('@/components/reception/Reception.vue');
 const Appointments = () => import('@/components/Appointments.vue');
 const AppointmentTable = () => import('@/components/AppointmentTable.vue');
@@ -16,7 +16,7 @@ const router = createRouter({
   routes: [{
     name: 'home',
     path: '/',
-    component: Home
+    component: DatabaseConnection
   },
   {
     name: 'reception',

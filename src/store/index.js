@@ -10,18 +10,28 @@ import enqueue from './modules/enqueue';
 const debug = true;
 PouchDB.plugin(PouchDBFind);
 const db = new PouchDB('mimpf');
+let sync = undefined;
 
 export default createStore({
   state: {
     syncState: false,
-    syncURL: 'http://admin:admin@localhost:5984/mimpf'
+    //syncURL: 'http://admin:admin@localhost:5984/mimpf',
+    ssl: false,
+    host: "localhost:5984",
+    user: "admin",
+    pass: "admin",
+    dbName: "mimpf",
   },
   modules: {
     appointment,
     queue,
     enqueue
   },
-  methods: {
+  getters: {
+    getSyncURL: (state) => {
+      const prefix = state.ssl ? "https://" : "http://";
+      return prefix + state.user + ":" + state.pass + "@" + state.host + "/" + state.dbName;
+    },
   },
   mutations: {
   },
@@ -56,8 +66,11 @@ export default createStore({
       });
     },
     async syncDB(context) {
-      db
-        .sync(context.state.syncURL, { live: true, retry: true })
+      if (sync) {
+        sync.cancel();
+      }
+      sync = db
+        .sync(context.getters['getSyncURL'], { live: true, retry: true })
         .on('change', function(info) {
           // NOTICE: multiple tabs use the same IndexedDB -> no regular
           // vuex mutations. Maybe also accept 'push' changes?

@@ -20,16 +20,12 @@
 
 <script>
 
-import { useStore } from 'vuex';
 
 export default {
   name: 'App',
   components: {
   },
   setup() {
-    const store = useStore();
-
-    store.dispatch('syncDB');
   }
 }
 </script>
