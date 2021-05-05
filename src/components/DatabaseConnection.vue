@@ -28,7 +28,7 @@
     </el-form-item>
     <el-form-item label="Passwort">
       <el-input
-        v-model="password"
+        v-model="pass"
         type="password"
         placeholder="Passwort eintragen"
       />
@@ -57,22 +57,33 @@ export default {
     const store = useStore();
     
     const handleConnect = () => {
+      store.commit('setConnectionAttributes', 
+        {
+          ssl: ssl.value,
+          host: host.value,
+          pass: pass.value,
+          user: user.value,
+          dbName: dbName.value
+        });
       store.dispatch('syncDB');
     }
 
-    const ssl = ref(store.state.ssl);
-    const host = ref(store.state.host);
-    const user = ref(store.state.user);
-    const password = ref(store.state.pass);
-    const dbName = ref(store.state.dbName);
+    let connectionAttrs = store.getters['getConnectionAttributes'];
+    let ssl =  ref(connectionAttrs.ssl);
+    let host = ref(connectionAttrs.host);
+    let pass = ref(connectionAttrs.pass);
+    let user = ref(connectionAttrs.user);
+    let dbName = ref(connectionAttrs.dbName);
+
+    
     
     return {
       handleConnect,
       ssl,
       host,
-      password,
+      pass,
       user,
-      dbName,
+      dbName
     }
   }
 }

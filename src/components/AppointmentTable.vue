@@ -66,23 +66,25 @@
         <template v-if="isSelected(scope.row)">
           <el-button
             size="small"
-            type="warning"
-            @click="handleEnqueue(scope.row)"
+            type="primary"
+            @click="handleUnselect(scope.row)"
           >
-            ({{ selectionCount }}) Einreihen
+            Abwählen
           </el-button>
           <el-button
             size="small"
-            type="danger"
-            icon="el-icon-delete"
-            circle
-            @click="handleUnselect(scope.row)"
-          />
+            type="success"
+            icon="el-icon-right"
+            @click="handleEnqueue(scope.row)"
+          >
+            ({{ selectionCount }}) 
+          </el-button>
         </template>
         <template v-else>
           <el-button
             size="small"
             type="primary"
+            plain
             @click="handleSelect(scope.row)"
           >
             Auswählen

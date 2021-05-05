@@ -15,7 +15,6 @@ let sync = undefined;
 export default createStore({
   state: {
     syncState: false,
-    //syncURL: 'http://admin:admin@localhost:5984/mimpf',
     ssl: false,
     host: "localhost:5984",
     user: "admin",
@@ -28,12 +27,29 @@ export default createStore({
     enqueue
   },
   getters: {
+    getConnectionAttributes: (state) => {
+      return {
+        ssl: state.ssl,
+        host: state.host,
+        user: state.user,
+        pass: state.pass,
+        dbName: state.dbName
+      }
+    },
     getSyncURL: (state) => {
       const prefix = state.ssl ? "https://" : "http://";
+      //TODO: maybe prevent some "injections"?
       return prefix + state.user + ":" + state.pass + "@" + state.host + "/" + state.dbName;
     },
   },
   mutations: {
+    setConnectionAttributes: (state, attrs={}) => {
+      state.ssl = attrs.ssl;
+      state.host = attrs.host;
+      state.user = attrs.user;
+      state.pass = attrs.pass;
+      state.dbName = attrs.dbName;
+    },
   },
   actions: {
     async findDocs(context, options) {
@@ -67,8 +83,9 @@ export default createStore({
     },
     async syncDB(context) {
       if (sync) {
-        sync.cancel();
+        await sync.cancel();
       }
+      console.log(context.getters['getSyncURL']);
       sync = db
         .sync(context.getters['getSyncURL'], { live: true, retry: true })
         .on('change', function(info) {
