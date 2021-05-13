@@ -88,7 +88,8 @@ const mutations = {
     state.totalRows++;
   },
   decreaseTotalRows(state) {
-    state.totalRows--;
+    if (state.totalRows > 0)
+      state.totalRows--;
   },
 }
 

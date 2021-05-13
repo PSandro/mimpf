@@ -1,14 +1,4 @@
 <template>
-  <h1>Mimpf!</h1>
-
-  <p>
-    <router-link to="/settings">
-      Einstellungen
-    </router-link>
-    <router-link to="/appointments/view">
-      (Parkplatz-)Empfang
-    </router-link>
-  </p>
   <p>
     {{ status }}
   </p>

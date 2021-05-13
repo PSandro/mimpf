@@ -87,12 +87,6 @@ export default createStore({
     },
     async syncDB(context) {
 
-      await context.commit('setStatus', 'cleaning up...');
-      if (db) {
-        await db.destroy();
-      }
-      db = new PouchDB("mimpf");
-
       await context.commit('setStatus', 'notsyncing');
       if (sync) {
         await sync.cancel();
@@ -127,6 +121,8 @@ export default createStore({
                   if (!change._deleted) {
                     context.commit('appointment/addAppointment', change);
                     context.commit('appointment/increaseTotalRows');
+                  } else {
+                    context.commit('appointment/decreaseTotalRows');
                   }
                 }
               } else if (change._id.match(/^queueEntry:/)) {
