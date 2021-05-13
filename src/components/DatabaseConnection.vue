@@ -4,7 +4,7 @@
   >
     <el-form-item label="SSL/TLS">
       <el-switch
-        v-model="ssl"
+        v-model="connectionAttrs.ssl"
         placeholder="SSL"
       />
     </el-form-item>
@@ -42,12 +42,14 @@
       </el-button>
       <el-button>Zurücksetzen</el-button>
     </el-form-item>
+    <p> {{ connectionAttrs }} </p>
   </el-form>
 </template>
 
 <script>
 import { useStore } from 'vuex';
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
+import { VueCookieNext } from 'vue-cookie-next';
 
 export default {
   name: 'EnqueueForm',
@@ -56,24 +58,39 @@ export default {
   setup() {
     const store = useStore();
     
+    let connectionAttrs = computed(() => store.getters['getConnectionAttributes']);
+    let ssl =  ref(connectionAttrs.value.ssl);
+    let host = ref(connectionAttrs.value.host);
+    let pass = ref(connectionAttrs.value.pass);
+    let user = ref(connectionAttrs.value.user);
+    let dbName = ref(connectionAttrs.value.dbName);
+
     const handleConnect = () => {
-      store.commit('setConnectionAttributes', 
+      let attrs =
         {
           ssl: ssl.value,
           host: host.value,
           pass: pass.value,
           user: user.value,
           dbName: dbName.value
-        });
+        };
+      store.commit('setConnectionAttributes', attrs);
+      let conAttrs = Object.assign({}, attrs);
+      delete conAttrs.pass;
+      VueCookieNext.setCookie('conAttrs', conAttrs);
       store.dispatch('syncDB');
+      
     }
 
-    let connectionAttrs = store.getters['getConnectionAttributes'];
-    let ssl =  ref(connectionAttrs.ssl);
-    let host = ref(connectionAttrs.host);
-    let pass = ref(connectionAttrs.pass);
-    let user = ref(connectionAttrs.user);
-    let dbName = ref(connectionAttrs.dbName);
+    if (VueCookieNext.isCookieAvailable('conAttrs')) {
+      let attrs = VueCookieNext.getCookie('conAttrs');
+      ssl.value = attrs.ssl;
+      host.value = attrs.host;
+      user.value = attrs.user;
+      dbName.value = attrs.dbName;
+      store.commit('setConnectionAttributes', attrs);
+    }
+
 
     
     
@@ -83,7 +100,8 @@ export default {
       host,
       pass,
       user,
-      dbName
+      dbName,
+      connectionAttrs
     }
   }
 }

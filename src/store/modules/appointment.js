@@ -84,6 +84,12 @@ const mutations = {
   setTotalRows(state, totalRows) {
     state.totalRows = totalRows;
   },
+  increaseTotalRows(state) {
+    state.totalRows++;
+  },
+  decreaseTotalRows(state) {
+    state.totalRows--;
+  },
 }
 
 // actions
@@ -101,7 +107,7 @@ const actions = {
     dispatch('putDoc', appointment, { root: true }).then((res) => {
       appointment._rev = res.rev;
       commit('addAppointment', appointment);
-      dispatch('fetchPendingCount');
+      commit('increaseTotalRows');
     })
 			
   },
@@ -115,6 +121,7 @@ const actions = {
   receiveAppointmentEdit({state, dispatch, commit, getters}, appointment) {
     if (state.status && state.status !== appointment.status) {
       commit('removeAppointment', appointment);
+      commit('decreaseTotalRows');
 
       // fetch following appointments
       dispatch('fetchAppointments', {key: getters['getEndelement'], skip: 1, limit: 1}).then((result) => {
@@ -123,7 +130,6 @@ const actions = {
         }
       });
 
-      dispatch('fetchPendingCount');
     } else {
       commit('updateAppointment', appointment);
     }

@@ -1,12 +1,16 @@
 <template>
   <h1>Mimpf!</h1>
+
   <p>
-    <router-link to="/reception">
-      Home
+    <router-link to="/settings">
+      Einstellungen
     </router-link>
-    <router-link to="/reception/appointments/view">
+    <router-link to="/appointments/view">
       (Parkplatz-)Empfang
     </router-link>
+  </p>
+  <p>
+    {{ status }}
   </p>
   <Suspense>
     <template #default>
@@ -20,12 +24,19 @@
 
 <script>
 
+import { useStore } from 'vuex';
+import { computed } from 'vue';
 
 export default {
   name: 'App',
   components: {
   },
   setup() {
+    const store = useStore();
+    
+    return {
+      status: computed(() => store.getters['getStatus']),
+    };
   }
 }
 </script>

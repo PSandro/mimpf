@@ -4,7 +4,7 @@ import {
 } from 'vue-router'
 
 const DatabaseConnection = () => import('@/components/DatabaseConnection.vue');
-const Reception = () => import('@/components/reception/Reception.vue');
+const Home = () => import('@/components/Home.vue');
 const Appointments = () => import('@/components/Appointments.vue');
 const AppointmentTable = () => import('@/components/AppointmentTable.vue');
 const EnqueueForm = () => import('@/components/EnqueueForm.vue');
@@ -13,40 +13,41 @@ const Queue = () => import('@/components/Queue.vue');
 const history = createWebHistory();
 const router = createRouter({
   history,
-  routes: [{
-    name: 'home',
-    path: '/',
-    component: DatabaseConnection
-  },
-  {
-    name: 'reception',
-    path: '/reception',
-    component: Reception,
-    children: [
-      {
-        name: 'appointments',
-        path: 'appointments',
-        component: Appointments,
-        children: [
-          {
-            name: 'view',
-            path: 'view',
-            component: AppointmentTable
-          },
-          {
-            name: 'enqueue',
-            path: 'enqueue',
-            component: EnqueueForm
-          }
-        ]
-      },
-      {
-        name: 'queue',
-        path: 'queue',
-        component: Queue
-      }
-    ]
-  },
+  routes: [
+    {
+      name: 'home',
+      path: '/',
+      component: Home,
+      children: [
+        {
+          name: 'appointments',
+          path: 'appointments',
+          component: Appointments,
+          children: [
+            {
+              name: 'view',
+              path: 'view',
+              component: AppointmentTable
+            },
+            {
+              name: 'enqueue',
+              path: 'enqueue',
+              component: EnqueueForm
+            }
+          ]
+        },
+        {
+          name: 'queue',
+          path: 'queue',
+          component: Queue
+        },
+        {
+          name: 'settings',
+          path: '/settings',
+          component: DatabaseConnection
+        },
+      ]
+    },
   ]
 });
 

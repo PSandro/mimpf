@@ -66,6 +66,12 @@ const mutations = {
   setTotalRows(state, totalRows) {
     state.totalRows = totalRows;
   },
+  increaseTotalRows(state) {
+    state.totalRows++;
+  },
+  decreaseTotalRows(state) {
+    state.totalRows--;
+  },
 }
 
 // actions
@@ -89,7 +95,7 @@ const actions = {
     dispatch('putDoc', queueEntry, { root: true }).then((res) => {
       queueEntry._rev = res.rev;
       commit('addQueueEntry', queueEntry);
-      dispatch('fetchPendingCount');
+      commit('increaseTotalRows');
     })
 			
   },
@@ -100,10 +106,10 @@ const actions = {
     }
     dispatch('editQueueEntry', editQueueEntry);
   },
-  receiveQueueEntryEdit({state, dispatch, commit}, queueEntry) {
+  receiveQueueEntryEdit({state, commit}, queueEntry) {
     if (state.status && state.status !== queueEntry.status) {
       commit('removeQueueEntry', queueEntry);
-      dispatch('fetchPendingCount');
+      commit('decreaseTotalRows');
     } else {
       commit('updateQueueEntry', queueEntry);
     }

@@ -9,17 +9,19 @@ import enqueue from './modules/enqueue';
 //TODO: disable in production
 const debug = true;
 PouchDB.plugin(PouchDBFind);
-const db = new PouchDB('mimpf');
+let db = new PouchDB("mimpf");
 let sync = undefined;
 
 export default createStore({
   state: {
-    syncState: false,
-    ssl: false,
-    host: "localhost:5984",
-    user: "admin",
-    pass: "admin",
-    dbName: "mimpf",
+    conAttrs: {
+      ssl: false,
+      host: "localhost:5984",
+      user: "admin",
+      pass: "admin",
+      dbName: "mimpf",
+    },
+    status: 'notsyncing',
   },
   modules: {
     appointment,
@@ -28,28 +30,30 @@ export default createStore({
   },
   getters: {
     getConnectionAttributes: (state) => {
-      return {
-        ssl: state.ssl,
-        host: state.host,
-        user: state.user,
-        pass: state.pass,
-        dbName: state.dbName
-      }
+      return state.conAttrs;
+    },
+    getStatus: (state) => {
+      return state.status;
     },
     getSyncURL: (state) => {
-      const prefix = state.ssl ? "https://" : "http://";
+      const prefix = state.conAttrs.ssl ? "https://" : "http://";
       //TODO: maybe prevent some "injections"?
-      return prefix + state.user + ":" + state.pass + "@" + state.host + "/" + state.dbName;
+      return prefix + state.conAttrs.user + ":" + state.conAttrs.pass + "@" + state.conAttrs.host + "/" + state.conAttrs.dbName;
     },
   },
   mutations: {
     setConnectionAttributes: (state, attrs={}) => {
-      state.ssl = attrs.ssl;
-      state.host = attrs.host;
-      state.user = attrs.user;
-      state.pass = attrs.pass;
-      state.dbName = attrs.dbName;
+      state.conAttrs = {
+        ssl: attrs.ssl,
+        host: attrs.host,
+        user: attrs.user,
+        pass: attrs.pass,
+        dbName: attrs.dbName,
+      }
     },
+    setStatus: (state, status) => {
+      state.status = status;
+    }
   },
   actions: {
     async findDocs(context, options) {
@@ -82,10 +86,19 @@ export default createStore({
       });
     },
     async syncDB(context) {
+
+      await context.commit('setStatus', 'cleaning up...');
+      if (db) {
+        await db.destroy();
+      }
+      db = new PouchDB("mimpf");
+
+      await context.commit('setStatus', 'notsyncing');
       if (sync) {
         await sync.cancel();
+        sync = null;
       }
-      console.log(context.getters['getSyncURL']);
+      await context.commit('setStatus', 'syncing');
       sync = db
         .sync(context.getters['getSyncURL'], { live: true, retry: true })
         .on('change', function(info) {
@@ -104,6 +117,7 @@ export default createStore({
                   if (change._deleted == true) {
                   // remove it
                     context.commit('appointment/removeAppointment', match);
+                    context.commit('appointment/decreaseTotalRows');
                   } else {
                   // modify it
                     context.dispatch('appointment/receiveAppointmentEdit', change);
@@ -112,9 +126,9 @@ export default createStore({
                 // add it
                   if (!change._deleted) {
                     context.commit('appointment/addAppointment', change);
+                    context.commit('appointment/increaseTotalRows');
                   }
                 }
-                context.dispatch('appointment/fetchPendingCount');
               } else if (change._id.match(/^queueEntry:/)) {
                 let match = context.getters['queue/getQueueEntryById'](change._id);
 
@@ -123,6 +137,7 @@ export default createStore({
                   if (change._deleted == true) {
                   // remove it
                     context.commit('queue/removeQueueEntry', match);
+                    context.commit('queue/decreaseTotalRows');
                   } else {
                   // modify it
                     context.dispatch('queue/receiveQueueEntryEdit', change);
@@ -131,27 +146,25 @@ export default createStore({
                 // add it
                   if (!change._deleted) {
                     context.commit('queue/addQueueEntry', change);
+                    context.commit('queue/increaseTotalRows');
                   }
                 }
-                context.dispatch('queue/fetchPendingCount');
               }
             }
           }
         })
-        .on('paused', function() {
+        .on('paused', function(e) {
           // replication paused (e.g. replication up to date, user went offline)
-        })
-        .on('active', function() {
-          // replicate resumed (e.g. new changes replicating, user went back online)
+          if (e) 
+            context.commit('setStatus', 'syncerror');
         })
         .on('denied', function() {
           // a document failed to replicate (e.g. due to permissions)
-        })
-        .on('complete', function() {
-          // handle complete
+          context.commit('setStatus', 'syncerror');
         })
         .on('error', function() {
           // handle error
+          context.commit('setStatus', 'syncerror');
         })
     },
   },
