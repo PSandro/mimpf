@@ -14,6 +14,9 @@
     <el-menu-item index="settings">
       Einstellungen
     </el-menu-item>
+    <el-menu-item index="import">
+      Importieren
+    </el-menu-item>
   </el-menu>
   <router-view v-slot="{ Component }">
     <template v-if="Component">

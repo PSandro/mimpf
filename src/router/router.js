@@ -7,6 +7,7 @@ const DatabaseConnection = () => import('@/components/DatabaseConnection.vue');
 const Home = () => import('@/components/Home.vue');
 const Appointments = () => import('@/components/Appointments.vue');
 const AppointmentTable = () => import('@/components/AppointmentTable.vue');
+const AppointmentImport = () => import('@/components/AppointmentImport.vue');
 const EnqueueForm = () => import('@/components/EnqueueForm.vue');
 const Queue = () => import('@/components/Queue.vue');
 
@@ -45,6 +46,11 @@ const router = createRouter({
           name: 'settings',
           path: '/settings',
           component: DatabaseConnection
+        },
+        {
+          name: 'import',
+          path: '/import',
+          component: AppointmentImport
         },
       ]
     },
