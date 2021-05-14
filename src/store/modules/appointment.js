@@ -1,5 +1,7 @@
 import { customAlphabet } from 'nanoid'
 import { alphanumeric } from 'nanoid-dictionary';
+import dayjs from 'dayjs'
+
 const nanoid = customAlphabet(alphanumeric, 11);
 
 
@@ -87,6 +89,9 @@ const mutations = {
   increaseTotalRows(state) {
     state.totalRows++;
   },
+  increaseTotalRowsBy(state, count) {
+    state.totalRows+=count;
+  },
   decreaseTotalRows(state) {
     if (state.totalRows > 0)
       state.totalRows--;
@@ -111,6 +116,32 @@ const actions = {
       commit('increaseTotalRows');
     })
 			
+  },
+  addAppointments({dispatch, commit}, appointments) {
+    for (let index = 0; index < appointments.length; index++){
+      let res = appointments[index];
+
+      console.log(res);
+      res._id = 'appointment:' + nanoid();
+      res.date = dayjs(res.day + ";" + res.time, "YYYY-MM-DD;HH:mm").unix();
+      res.status = 'pending';
+
+      delete res.place;
+      delete res.day;
+      delete res.time;
+      continue;
+    }
+    
+    dispatch('bulkDocs', appointments, { root: true}).then((results) => {
+      
+      commit('increaseTotalRowsBy', results.length);
+      console.log("hm?" + results.length === appointments.length)
+      for (let index = 0; index < results.length; index++){
+        let app = appointments[index];
+        app._rev = results[index].rev;
+        commit('addAppointment', appointments[index]);
+      }
+    });
   },
   editAppointmentStatus({dispatch}, { appointment, status }) {
     const editAppointment= {

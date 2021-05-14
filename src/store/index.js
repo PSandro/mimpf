@@ -79,6 +79,9 @@ export default createStore({
     async putDoc(context, doc){
       return db.put(doc);
     },
+    async bulkDocs(context, docs){
+      return db.bulkDocs(docs);
+    },
     async fetchDocs(context, idPrefix) {
       return db.allDocs({
         include_docs: true,

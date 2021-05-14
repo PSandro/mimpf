@@ -130,8 +130,8 @@ export default {
 
     const formatDate = (row, column, cellValue) => {
       let timestamp = new Number(cellValue);
-      return dayjs(timestamp)
-        .format('HH:mm') + ' Uhr';
+      return dayjs.unix(timestamp)
+        .format('DD.MM.YYYY HH:mm') + ' Uhr';
     };
 
 

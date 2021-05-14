@@ -17,6 +17,7 @@
 <script>
 
 import { ref } from 'vue';
+import { useStore } from 'vuex';
 import Papa from 'papaparse';
 
 export default {
@@ -26,6 +27,8 @@ export default {
   setup() {
     
     let fileInput = ref();
+
+    const store = useStore();
 
     const onFilePicked = (event) => {
       const file = event.target.files[0];
@@ -38,7 +41,7 @@ export default {
           case "Impfort":
             return "place";
           case "Datum":
-            return "date";
+            return "day";
           case "Uhrzeit":
             return "time";
           case "Vorname":
@@ -53,12 +56,8 @@ export default {
             return header;
           }
         },
-        step: function(results) {
-          console.log("Row:", results.data);
-        },
-        complete: function() {
-          //TODO: format results and push to db
-          console.log("All done!");
+        complete: function(results) {
+          store.dispatch('appointment/addAppointments', results.data)
         },
         error: error => {
           console.log(error);
