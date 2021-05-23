@@ -1,10 +1,9 @@
 <template>
-  <button
-    class="btn btn-info"
+  <el-button
     @click="onPickFile"
   >
     Termine als .csv Datei hochladen
-  </button>
+  </el-button>
   <input
     ref="fileInput"
     type="file"

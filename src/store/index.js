@@ -1,6 +1,7 @@
 import { createLogger, createStore } from 'vuex';
 import PouchDB from 'pouchdb';
 import PouchDBFind from 'pouchdb-find';
+import PouchDBAuth from 'pouchdb-authentication';
 
 import appointment from './modules/appointment';
 import queue from './modules/queue';
@@ -9,7 +10,9 @@ import enqueue from './modules/enqueue';
 //TODO: disable in production
 const debug = true;
 PouchDB.plugin(PouchDBFind);
+PouchDB.plugin(PouchDBAuth);
 let db = new PouchDB("mimpf");
+let remoteDB;
 let sync = undefined;
 
 export default createStore({
@@ -17,8 +20,6 @@ export default createStore({
     conAttrs: {
       ssl: false,
       host: "localhost:5984",
-      user: "admin",
-      pass: "admin",
       dbName: "mimpf",
     },
     status: 'notsyncing',
@@ -37,8 +38,7 @@ export default createStore({
     },
     getSyncURL: (state) => {
       const prefix = state.conAttrs.ssl ? "https://" : "http://";
-      //TODO: maybe prevent some "injections"?
-      return prefix + state.conAttrs.user + ":" + state.conAttrs.pass + "@" + state.conAttrs.host + "/" + state.conAttrs.dbName;
+      return prefix + state.conAttrs.host + "/" + state.conAttrs.dbName;
     },
   },
   mutations: {
@@ -53,11 +53,14 @@ export default createStore({
     },
     setStatus: (state, status) => {
       state.status = status;
-    }
+    },
   },
   actions: {
     async findDocs(context, options) {
       return db.find(options);
+    },
+    async initRemoteDB({getters}) {
+      remoteDB = new PouchDB(getters['getSyncURL'], {skip_setup: true});
     },
     async queryDocs(context, options) {
       return db.query(options.index, options.options);
@@ -88,6 +91,22 @@ export default createStore({
         startkey: idPrefix
       });
     },
+    async disconnect(context) {
+      if (sync) {
+        await sync.cancel();
+        sync = null;
+      }
+      await remoteDB.logout();
+      await remoteDB.close();
+      remoteDB = undefined;
+      await context.commit('setStatus', 'disconnected');
+    },
+    async login(context, {username, password}) {
+      if (!remoteDB) {
+        await context.dispatch('initRemoteDB');
+      }
+      return remoteDB.login(username, password);
+    },
     async syncDB(context) {
 
       await context.commit('setStatus', 'notsyncing');
@@ -95,9 +114,12 @@ export default createStore({
         await sync.cancel();
         sync = null;
       }
+      if (!remoteDB) {
+        await context.dispatch('initRemoteDB');
+      }
       await context.commit('setStatus', 'syncing');
       sync = db
-        .sync(context.getters['getSyncURL'], { live: true, retry: true })
+        .sync(remoteDB, { live: true, retry: true })
         .on('change', function(info) {
           // NOTICE: multiple tabs use the same IndexedDB -> no regular
           // vuex mutations. Maybe also accept 'push' changes?
@@ -112,15 +134,15 @@ export default createStore({
                 if (match) {
                   // and it's a deletion
                   if (change._deleted == true) {
-                  // remove it
+                    // remove it
                     context.commit('appointment/removeAppointment', match);
                     context.commit('appointment/decreaseTotalRows');
                   } else {
-                  // modify it
+                    // modify it
                     context.dispatch('appointment/receiveAppointmentEdit', change);
                   }
                 } else {
-                // add it
+                  // add it
                   if (!change._deleted) {
                     context.commit('appointment/addAppointment', change);
                     context.commit('appointment/increaseTotalRows');
@@ -134,15 +156,15 @@ export default createStore({
                 if (match) {
                   // and it's a deletion
                   if (change._deleted == true) {
-                  // remove it
+                    // remove it
                     context.commit('queue/removeQueueEntry', match);
                     context.commit('queue/decreaseTotalRows');
                   } else {
-                  // modify it
+                    // modify it
                     context.dispatch('queue/receiveQueueEntryEdit', change);
                   }
                 } else {
-                // add it
+                  // add it
                   if (!change._deleted) {
                     context.commit('queue/addQueueEntry', change);
                     context.commit('queue/increaseTotalRows');
@@ -157,13 +179,15 @@ export default createStore({
           if (e) 
             context.commit('setStatus', 'syncerror');
         })
-        .on('denied', function() {
+        .on('denied', function(err) {
           // a document failed to replicate (e.g. due to permissions)
           context.commit('setStatus', 'syncerror');
+          console.log('[syncDB()]: Error (1):' + JSON.stringify(err));
         })
-        .on('error', function() {
+        .on('error', function(err) {
           // handle error
           context.commit('setStatus', 'syncerror');
+          console.log('[syncDB()]: Error (2):' + JSON.stringify(err));
         })
     },
   },

@@ -40,9 +40,12 @@
       >
         Verbinden
       </el-button>
-      <el-button>Zurücksetzen</el-button>
+      <el-button
+        @click="handleDisconnect"
+      >
+        Trennen
+      </el-button>
     </el-form-item>
-    <p> {{ connectionAttrs }} </p>
   </el-form>
 </template>
 
@@ -61,32 +64,39 @@ export default {
     let connectionAttrs = computed(() => store.getters['getConnectionAttributes']);
     let ssl =  ref(connectionAttrs.value.ssl);
     let host = ref(connectionAttrs.value.host);
-    let pass = ref(connectionAttrs.value.pass);
-    let user = ref(connectionAttrs.value.user);
     let dbName = ref(connectionAttrs.value.dbName);
+    let user = ref(null);
+    let pass = ref(null);
 
-    const handleConnect = () => {
+    const handleConnect = async () => {
       let attrs =
         {
           ssl: ssl.value,
           host: host.value,
-          pass: pass.value,
-          user: user.value,
           dbName: dbName.value
         };
       store.commit('setConnectionAttributes', attrs);
       let conAttrs = Object.assign({}, attrs);
       delete conAttrs.pass;
       VueCookieNext.setCookie('conAttrs', conAttrs);
+      if (user.value !== null && pass.value !== null) {
+        await store.dispatch('login', {
+          username: user.value,
+          password: pass.value
+        });
+      }
       store.dispatch('syncDB');
       
+    }
+
+    const handleDisconnect = () => {
+      store.dispatch('disconnect');
     }
 
     if (VueCookieNext.isCookieAvailable('conAttrs')) {
       let attrs = VueCookieNext.getCookie('conAttrs');
       ssl.value = attrs.ssl;
       host.value = attrs.host;
-      user.value = attrs.user;
       dbName.value = attrs.dbName;
       store.commit('setConnectionAttributes', attrs);
     }
@@ -96,6 +106,7 @@ export default {
     
     return {
       handleConnect,
+      handleDisconnect,
       ssl,
       host,
       pass,

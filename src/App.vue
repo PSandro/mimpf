@@ -23,6 +23,9 @@ export default {
   },
   setup() {
     const store = useStore();
+
+    //try to sync database
+    store.dispatch('syncDB');
     
     return {
       status: computed(() => store.getters['getStatus']),
