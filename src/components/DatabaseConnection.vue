@@ -47,6 +47,18 @@
       </el-button>
     </el-form-item>
   </el-form>
+  <el-button
+    type="warning"
+    @click="handleResetLocal"
+  >
+    Lokale Datenbank zurücksetzen
+  </el-button>
+  <el-button
+    type="danger"
+    @click="handleResetRemote"
+  >
+    Remote Datenbank zurücksetzen
+  </el-button>
 </template>
 
 <script>
@@ -92,6 +104,16 @@ export default {
     const handleDisconnect = () => {
       store.dispatch('disconnect');
     }
+    
+    const handleResetLocal = () => {
+      store.dispatch('disconnect').then(() => {
+        store.dispatch('resetLocalDB');
+      });
+    }
+    
+    const handleResetRemote = () => {
+      store.dispatch('resetRemoteDB');
+    }
 
     if (VueCookieNext.isCookieAvailable('conAttrs')) {
       let attrs = VueCookieNext.getCookie('conAttrs');
@@ -107,6 +129,8 @@ export default {
     return {
       handleConnect,
       handleDisconnect,
+      handleResetLocal,
+      handleResetRemote,
       ssl,
       host,
       pass,

@@ -11,7 +11,11 @@ import enqueue from './modules/enqueue';
 const debug = true;
 PouchDB.plugin(PouchDBFind);
 PouchDB.plugin(PouchDBAuth);
-let db = new PouchDB("mimpf");
+
+const LOCAL_DB_NAME = "mimpf";
+const LOCAL_DB_PARAMS = {auto_compaction: true};
+
+let db = new PouchDB(LOCAL_DB_NAME, LOCAL_DB_PARAMS);
 let remoteDB;
 let sync = undefined;
 
@@ -60,7 +64,7 @@ export default createStore({
       return db.find(options);
     },
     async initRemoteDB({getters}) {
-      remoteDB = new PouchDB(getters['getSyncURL'], {skip_setup: true});
+      remoteDB = new PouchDB(getters['getSyncURL']);
     },
     async queryDocs(context, options) {
       return db.query(options.index, options.options);
@@ -79,6 +83,23 @@ export default createStore({
     async createIndex(context, options) {
       return db.createIndex(options);
     },
+    async resetLocalDB(context) {
+      await db.destroy();
+      context.commit('appointment/clearAppointmentSelection');
+      context.commit('queue/clearQueueEntries');
+      context.commit('enqueue/clearSelection');
+
+      db = new PouchDB(LOCAL_DB_NAME, LOCAL_DB_PARAMS);
+    },
+    async resetRemoteDB() {
+      if (remoteDB) {
+        await db.allDocs().then(function (result) {
+          return Promise.all(result.rows.map(function (row) {
+            return db.remove(row.id, row.value.rev);
+          }));
+        });
+      }
+    },
     async putDoc(context, doc){
       return db.put(doc);
     },
@@ -96,9 +117,11 @@ export default createStore({
         await sync.cancel();
         sync = null;
       }
-      await remoteDB.logout();
-      await remoteDB.close();
-      remoteDB = undefined;
+      if (remoteDB) {
+        await remoteDB.logout();
+        await remoteDB.close();
+        remoteDB = undefined;
+      }
       await context.commit('setStatus', 'disconnected');
     },
     async login(context, {username, password}) {

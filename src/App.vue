@@ -16,6 +16,7 @@
 
 import { useStore } from 'vuex';
 import { computed } from 'vue';
+import { VueCookieNext } from 'vue-cookie-next';
 
 export default {
   name: 'App',
@@ -23,6 +24,10 @@ export default {
   },
   setup() {
     const store = useStore();
+    if (VueCookieNext.isCookieAvailable('conAttrs')) {
+      let attrs = VueCookieNext.getCookie('conAttrs');
+      store.commit('setConnectionAttributes', attrs);
+    }
 
     //try to sync database
     store.dispatch('syncDB');
