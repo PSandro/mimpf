@@ -123,7 +123,7 @@ const actions = {
 
       console.log(res);
       res._id = 'appointment:' + nanoid();
-      res.date = dayjs(res.day + ";" + res.time, "YYYY-MM-DD;HH:mm").unix();
+      res.date = dayjs(res.day + ";" + res.time, ["YYYY-MM-DD;HH:mm", "DD.MM.YYYY;HH:mm"]).unix();
       res.status = 'pending';
 
       delete res.place;
