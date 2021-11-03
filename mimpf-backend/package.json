@@ -1,0 +1,23 @@
+{
+  "name": "mimpf-backend",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/PSandro/mimpf.git"
+  },
+  "author": "Sandro Pischinger",
+  "license": "GPL-3.0",
+  "bugs": {
+    "url": "https://github.com/PSandro/mimpf/issues"
+  },
+  "homepage": "https://github.com/PSandro/mimpf#readme",
+  "dependencies": {
+    "express": "^4.17.1",
+    "socket.io": "^4.0.1"
+  }
+}
